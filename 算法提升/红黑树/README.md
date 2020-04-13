@@ -27,6 +27,7 @@
   ①左旋（Rotate Left）：如下图，左旋的过程是将右子树饶x逆时针旋转，使得x的右子树成为x的父亲，同时修改相关节点的引用。旋转之后，红黑树的基本属性仍然满足。
 
 ![左旋示意图](https://img-blog.csdnimg.cn/20200409165542129.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI4Njk1NTkz,size_16,color_FFFFFF,t_70#pic_center)
+
   ②右旋（Rotate Left）：如下图，右旋的过程是将x的左子树绕x顺时针旋转，使得x的左子树成为x的父亲，同时修改相关节点的引用。旋转之后，二叉查找树的属性仍然满足。 
 
 ![右旋示意图](https://img-blog.csdnimg.cn/20200409165559918.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI4Njk1NTkz,size_16,color_FFFFFF,t_70#pic_center)
