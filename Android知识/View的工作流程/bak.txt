@@ -1,0 +1,7 @@
+kbg6rQndc0AIsUytaKSszJ6THZcBEQCp
+
+4
+
+apksigner sign --ks NetworkHelp.jks --ks-key-alias key --out signed.apk unsigned.apk
+
+
