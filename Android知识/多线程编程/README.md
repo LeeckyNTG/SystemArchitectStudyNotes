@@ -25,7 +25,7 @@
   - 安全的终止线程
 
     - ```java
-      public class StopThread{
+      public class StopThread_1{
           public static void main(String [] args) throws InterruptedException{
               MoonRunner runnable = new MoonRunner();
               Thread thread = new Thread(runnable,"MoonThread");
@@ -48,4 +48,115 @@
       }
       ```
 
-      
+    - ```java
+      public class StopThread_2 {
+          public static void main(String[] args) throws InterruptedException {
+              MoonRunner runnable = new MoonRunner();
+              Thread thread = new Thread(runnable, "MoonThread");
+              thread.start();
+              TimeUnit.MILLISECONDS.sleep(10);
+              runnable.cancel();
+          }
+          public static class MoonRunner implements Runnable {
+              private long i;
+              private volatile boolean on = true;
+              @Override
+              public void run() {
+                  while (on) {
+                      i++;
+                      System.out.println("i=" + i);
+                  }
+                  System.out.println("thread stop");
+              }
+              public void cancel() {
+                  on = false;
+              }
+          }
+      }
+      ```
+
+## 二、线程同步
+
+- ​	重入锁与条件对象
+
+  重入锁ReentrantLock是Java5.0引入的，就是支持重进入的锁，他表示该锁能够支持一个线程对资源重复加锁。用ReentrantLock保护代码块的结构如下：
+
+  ```java
+  Lock mLock = new ReentrantLock();
+  mLock.lock();
+  try{
+      ...
+  }
+  finally{
+      mLock.unlock();
+  }
+  ```
+
+  该结构确保任何时刻只有一个线程进入临界区，临界区就是在同一时刻只能有一个任务访问的代码区。
+
+  ```java
+  /**
+   * 生产者消费者模型
+   */
+  public class WeChatPay {
+      private double[] accounts;
+      private Lock payLock;
+      private Condition condition;
+      public WeChatPay(int n, double money) {
+          accounts = new double[n];
+          payLock = new ReentrantLock();
+          //得到条件
+          condition = payLock.newCondition();
+          for (int i = 0; i < accounts.length; i++) {
+              accounts[i] = money;
+          }
+      }
+      public void transfer(int form, int to, int amount) throws InterruptedException {
+          payLock.lock();
+          try {
+              while (accounts[form] < amount) {
+                  //wait
+                  condition.await();
+              }
+              //转账操作
+              accounts[form] = accounts[form] - amount;
+              accounts[to] = accounts[to] + amount;
+              printAccount();
+              condition.signalAll();
+          } finally {
+              payLock.unlock();
+          }
+      }
+      public void printAccount() {
+          for (int i = 0; i < accounts.length; i++) {
+              System.out.println(i + "账号的余额为：" + accounts[i]);
+          }
+      }
+      public static void main(String[] args) throws InterruptedException {
+          WeChatPay weChatPay = new WeChatPay(3, 100);
+          new Thread(new Runnable() {
+              @Override
+              public void run() {
+                  try {
+                      weChatPay.transfer(0, 1, 150);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              }
+          }).start();
+          TimeUnit.MILLISECONDS.sleep(10);
+          new Thread(new Runnable() {
+              @Override
+              public void run() {
+                  try {
+                      weChatPay.transfer(2, 0, 80);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              }
+          }).start();
+      }
+  }
+  ```
+
+  
