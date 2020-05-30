@@ -18,4 +18,34 @@
 
     ![线程状态关系图](https://img-blog.csdnimg.cn/20200513104638563.jpg)
 
-- 阿萨德
+- 线程中断
+
+  - 在Java的早期版本中有stop方法可以终止线程，但是这个方法现在已经被弃用了。interrupt方法可以用来请求中断线程。当一个线程调用interrupt方法时，线程的中断标识位将被置位，线程会不断的检测这个中断标识位，以判断线程是否应该被中断。
+
+  - 安全的终止线程
+
+    - ```java
+      public class StopThread{
+          public static void main(String [] args) throws InterruptedException{
+              MoonRunner runnable = new MoonRunner();
+              Thread thread = new Thread(runnable,"MoonThread");
+              thread.start();
+              TimeUnit.MILLISECONDS.sleep(10);
+              thread.interrupt();
+          }
+          
+          public static class MoonRunner implements Runnable {
+              private long i;
+              @Override
+              public void run() {
+                  while(!Thread.currentThread().isInterrupted()){
+                      i++;
+                      System.out.println("i="+i);
+                  }
+                  System.out.println("thread stop");
+              }
+          }
+      }
+      ```
+
+      
