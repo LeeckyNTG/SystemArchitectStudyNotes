@@ -45,12 +45,12 @@ class TreeNode {
     }
 }
 
-public class LeetCode102 {
+public class LeetCode104 {
 
 
     public static void main(String[] args) {
 
-        LeetCode102 code = new LeetCode102();
+        LeetCode104 code = new LeetCode104();
         TreeNode root = new TreeNode(3);
         root.left = new TreeNode(9);
         TreeNode right = new TreeNode(20);
