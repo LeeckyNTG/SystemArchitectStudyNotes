@@ -317,3 +317,60 @@
        - poll（long time，TimeUnit unit）：从BlockingQueue中取出一个队首的对象。如果在指定时间内，队列一旦有数据可取，则立即返回队列中的数据：否则直到时间超时还没有数据可取，返回失败。
        - take()：取走BlockingQueue里面排在首位的对象。若BlockingQueue为空，则阻断进入等待状态，直到BlockingQueue有新的数据被加入。
        - drainTo()：一次性从BlockingQueue获取所有可用的数据对象（还可以指定获取数据的个数）。通过该方法，可以提升获取数据的效率；无须多次分批加锁或释放锁。
+
+
+
+- Java中的阻塞队列
+
+  - ArrayBlockingQueue：它是用数组实现的有界阻塞队列，并按照先进先出（FIFO）的原则对元素进行排序。默认情况下不保证线程公平的访问队列。公平访问队列是指阻塞的所有生产者线程和消费者线程，当队列可用时，可以按照阻塞的先后顺序访问队列。通常为了保证公平性会降低吞吐量。我们可以使用以下代码创建一个公平的阻塞队列。
+
+    ```java
+    ArrayBlockingQueue fairQueue = new ArrayBlockingQueue(2000, true);
+    ```
+
+  - LinkedBlockingQueue：它是居于链表的阻塞队列，和ArrayBlockingQueue类似，按照先进先出的原则对元素进行排序，其内部也维持着一个数据缓冲队列。当生产者往队列放入一个数据时，队列会从生产者手中获取数据，并缓冲在队列内部，而生产者立即返回；只有当队列的缓冲区达到缓冲容量的最大值时，才会阻塞生产队列。如果没有设置队列的最大缓存时，会默认一个类似于无线大小的容量（Integer.MAX_VALUE）。
+
+  - PriorityBlockingQueue：它是一个支持优先级的无界队列。默认采用自然顺序升序排列。
+
+  - DelayQueue：它是一个支持延时获取元素的无界阻塞队列。队列使用PriorityQueue来实现，队列中的元素必须实现Delayed接口。
+
+  - SynchronousQueue：他是一个不存储元素的阻塞队列，每个插入操作必须等待另一个线程移除操作。
+
+  - LinkedTransferQueue：它是一个由链表结构组成的无界阻塞TransferQueue。
+
+  - LinkedBlockingDeque：它是一个由链表结构组成的双向阻塞队列。
+
+## 四、线程池
+
+- ThreadPoolExecutor
+
+  我们可以通过ThreadPoolExecutor来创建一个线程池，ThreadPoolExecutor一共有四个构造方法，其中参数最多的构造方法如下所示：
+
+  ```java
+   public ThreadPoolExecutor(int corePoolSize,//核心线程数
+                             int maximumPoolSize,
+                             long keepAliveTime,
+                             TimeUnit unit,
+                             BlockingQueue<Runnable> workQueue,
+                             ThreadFactory threadFactory,
+                             RejectedExecutionHandler handler) {
+   }
+  ```
+
+  参数介绍：
+
+  1. corePoolSize：核心线程数。默认情况下线程池是空的，只有任务提交时才会创建线程。如果当前运行的线程数少于corePoolSize，则创建新线程来处理任务；如果等于或者多余corePoolSize，则不再创建。如果调用线程池的prestartAllcoreThread方法，线程池会提前创建并启动所有核心线程来等待任务。
+  2. maximumPoolSize：线程允许创建的最大线程数。如果任务队列满了并且线程数小于maximumPoolSize时，则线程池仍然会创建新的线程来执行任务。
+  3. keepAliveTime：非核心闲置的超时时间。超过这个时间则回收。如果任务很多，并且每个任务执行的事件很短，则可以调大keepAliveTime来提高线程的利用率。另外，如果设置allowCoreThreadTimeOut属性为true时，keepAliveTime也会应用到核心线程上。
+  4. unit：keepAliveTime参数的事件单位。可选的单位有天（DAYS）、小时（HOURS）、分钟（MINUTES）、秒（SECONDS）、毫秒（MILLISECONDS）等。
+  5. workQueue：任务队列。如果当前线程数大于corePoolSize，则将任务添加到此队列中。该任务队列是BlockingQueue类型的，也就是阻塞队列。
+  6. threadFactory：线程工厂。可以用线程工厂给每个创建出来的线程设置名字。一般情况下无须设置该参数。
+  7. handler：RejectedExecutionHandler是饱和策略。这是当前任务队列和线程池都满了时说采用的应对策略，默认是AbordPolicy，表示无法处理新任务，并抛出handler：RejectedExecutionException异常。
+
+- 线程池的处理流程和原理
+
+  ![线程池的处理流程图](https://img-blog.csdnimg.cn/20200803144830970.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI4Njk1NTkz,size_16,color_FFFFFF,t_70#pic_center)
+
+- 线程池的种类
+
+  通过直接或者间接的配置ThreadPoolExecutor的参数可以创建不同种类的ThreadPoolExecutor，其中有4种线程池比较常用，他们分别是FixedThreadPool、CachedThreadPool、SingleThreadPool和ScheduledPool。
