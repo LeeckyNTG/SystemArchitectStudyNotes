@@ -24,56 +24,56 @@
 
   - 安全的终止线程
 
-    - ```java
-      public class StopThread_1{
-          public static void main(String [] args) throws InterruptedException{
-              MoonRunner runnable = new MoonRunner();
-              Thread thread = new Thread(runnable,"MoonThread");
-              thread.start();
-              TimeUnit.MILLISECONDS.sleep(10);
-              thread.interrupt();
-          }
-          
-          public static class MoonRunner implements Runnable {
-              private long i;
-              @Override
-              public void run() {
-                  while(!Thread.currentThread().isInterrupted()){
-                      i++;
-                      System.out.println("i="+i);
-                  }
-                  System.out.println("thread stop");
-              }
-          }
-      }
-      ```
+    ```java
+    public class StopThread_1{
+        public static void main(String [] args) throws InterruptedException{
+            MoonRunner runnable = new MoonRunner();
+            Thread thread = new Thread(runnable,"MoonThread");
+            thread.start();
+            TimeUnit.MILLISECONDS.sleep(10);
+            thread.interrupt();
+        }
+        
+        public static class MoonRunner implements Runnable {
+            private long i;
+            @Override
+            public void run() {
+                while(!Thread.currentThread().isInterrupted()){
+                    i++;
+                    System.out.println("i="+i);
+                }
+                System.out.println("thread stop");
+            }
+        }
+    }
+    ```
 
-    - ```java
-      public class StopThread_2 {
-          public static void main(String[] args) throws InterruptedException {
-              MoonRunner runnable = new MoonRunner();
-              Thread thread = new Thread(runnable, "MoonThread");
-              thread.start();
-              TimeUnit.MILLISECONDS.sleep(10);
-              runnable.cancel();
-          }
-          public static class MoonRunner implements Runnable {
-              private long i;
-              private volatile boolean on = true;
-              @Override
-              public void run() {
-                  while (on) {
-                      i++;
-                      System.out.println("i=" + i);
-                  }
-                  System.out.println("thread stop");
-              }
-              public void cancel() {
-                  on = false;
-              }
-          }
-      }
-      ```
+    ```java
+    public class StopThread_2 {
+        public static void main(String[] args) throws InterruptedException {
+            MoonRunner runnable = new MoonRunner();
+            Thread thread = new Thread(runnable, "MoonThread");
+            thread.start();
+            TimeUnit.MILLISECONDS.sleep(10);
+            runnable.cancel();
+        }
+        public static class MoonRunner implements Runnable {
+            private long i;
+            private volatile boolean on = true;
+            @Override
+            public void run() {
+                while (on) {
+                    i++;
+                    System.out.println("i=" + i);
+                }
+                System.out.println("thread stop");
+            }
+            public void cancel() {
+                on = false;
+            }
+        }
+    }
+    ```
 
 ## 二、线程同步
 
@@ -369,8 +369,73 @@
 
 - 线程池的处理流程和原理
 
-  ![线程池的处理流程图](https://img-blog.csdnimg.cn/20200803144830970.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI4Njk1NTkz,size_16,color_FFFFFF,t_70#pic_center)
+  ![线程池的处理流程图](https://img-blog.csdnimg.cn/20200806102852365.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI4Njk1NTkz,size_16,color_FFFFFF,t_70#pic_center)
+
 
 - 线程池的种类
 
   通过直接或者间接的配置ThreadPoolExecutor的参数可以创建不同种类的ThreadPoolExecutor，其中有4种线程池比较常用，他们分别是FixedThreadPool、CachedThreadPool、SingleThreadPool和ScheduledPool。
+
+  - FixedThreadPool，是可重用固定线程数的线程池。在Executors类中提供了创建FixedThreadPool的方法。FixedThreadPool的corePoolSize和maximumPoolSize都设置为创建线程FixedThreadPool指定的nThreads，也就意味着FixedThreadPool只有核心线程，并且数量是固定的，没有非核心线程。keepAliveTime设置为0L意味着多余的线程会被立即终止。因为不会产生多余的线程，所以keepAliveTime是无效的参数。另外，任务队列采用了无界阻塞队列LinkedBlockingQueue(Integer.MAX_VALUE)。
+
+    ```java
+    //系统源码
+    public static ExecutorService newFixedThreadPool(int nThreads) {
+      return new ThreadPoolExecutor(nThreads, nThreads,
+                                    0L, TimeUnit.MILLISECONDS,
+                                    new LinkedBlockingQueue<Runnable>());
+    }
+    //使用
+    ExecutorService cachedThreadPool = Executors.newFixedThreadPool(2);
+    ```
+
+  - CacheThreadPool，是一个根据需要创建线程的线程池，他的corePoolSize为0，maximumPoolSize为Integer.MAX_VALUE，这意味着它没有核心线程，非核心线程是无界的。keepAliveTime设置为60L，这意味着空闲线程等待新任务的最长时间为60s。阻塞队列用的是SynchronousQueue，它是一个不存储元素的阻塞队列，每个插入操作必须等待另一个线程的移除操作。创建CacheThreadPool的代码如下：
+
+    ```java
+    public static ExecutorService newCachedThreadPool() {
+      return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                    60L, TimeUnit.SECONDS,
+                                    new SynchronousQueue<Runnable>());
+    }
+    ```
+
+  - SinleThreadExecutor，是使用单个工作线程的线程池，他的corePoolSize和maximumPoolSize都是1，意味着它只有一个核心线程，其他参数都和FixedThreadPool一样。其创建源码如下所示：
+
+    ```java
+    public static ExecutorService newSingleThreadExecutor() {
+      return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.MILLISECONDS,
+                                new LinkedBlockingQueue<Runnable>()));
+    }
+    ```
+
+  - ScheduledThreadPool，是一个能实现定时和周期行任务的线程池，DelayedWorkQueue是无界的阻塞队列，所以maximumPoolSize参数无效。
+
+    ```java
+    public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
+      return new ScheduledThreadPoolExecutor(corePoolSize);
+    }
+    public ScheduledThreadPoolExecutor(int corePoolSize) {
+      super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
+            new DelayedWorkQueue());
+    }
+    ```
+
+## 五、AsyncTask
+
+​		当我们通过线程去执行耗时任务，并且在操作结束完之后可能还有更新UI时，通常会用到Handler来更新UI线程。虽然实现起来很简单，但是如果多任务同时执行时则会显得代码臃肿。Android提供了AsyncTask，它使得异步任务实现起来更加简单，代码更加简洁。下面是AsyncTask的定义：
+
+```java
+public abstract class AsyncTask<Params, Progress, Result>{
+  ...
+}
+```
+
+​		AsyncTask是一个抽象泛型类，他有三个泛型参数，分别是Params、Progress、和Result。其中Params为参数类型，Progress为后台任务执行进度的类型，Result为返回的结果类型。他有四个核心方法如下：
+
+- onPreExecute()：在主线程中执行。一般在任务任务执行前做准备工作，比如UI的一些标记。
+- doInBackground(Params... params)：在线程池中执行。在onPreExecute方法执行后运行，用来执行较为耗时的操作。在执行过程中可以调用publishProgress(Progress... values)来更新进度信息。
+- onProgressUpdate(Progress... value)：在主线程中执行，用于刷新UI进度信息。
+- onPostExecute(Result result)：在主线程中执行。当后台任务被执行完成后，他会被执行。
+
