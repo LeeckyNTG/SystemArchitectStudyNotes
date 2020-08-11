@@ -12,7 +12,7 @@ public class ThreadPool {
         cacheThreadPool();
         singleThreadExecutor();
         scheduledThreadPool();
-        
+
     }
 
     private static void scheduledThreadPool() {
