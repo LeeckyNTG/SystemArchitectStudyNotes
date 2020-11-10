@@ -1,0 +1,15 @@
+server:
+  port: 9003
+spring:
+  application:
+    name: nacos-payment-provider
+  cloud:
+    nacos:
+      discovery:
+        server-addr: diankuaigong.ntg520.cn:18001
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'  #暴露端口
+

@@ -1,0 +1,39 @@
+server:
+  port: 8801
+
+spring:
+  application:
+    name: cloud-stream-provider
+
+  #rabbitmq配置
+  rabbitmq:
+    host: diankuaigong.ntg520.cn
+    port: 5672
+    username: clover
+    password: clover
+  cloud:
+    stream:
+      binders: #在此配置要绑定的 rabbitmq的服务信息
+        defaultRabbit:  # 表示定义的名称，用于 binding整合
+          type: rabbit  # 消息组件类型
+          environment:  # 设置rabbitmq相关的环境配置
+            spring:
+              rabbitmq:
+                host: tencent.leecky.cn
+                port: 5672
+                username: clover
+                password: clover
+      bindings: # 服务的整合处理
+        output: # 输出通道的名称
+          destination: studyExchange  #表示要使用的 Exchange 名称定义
+          content-type: application/json  # 消息类型
+          binder: defaultRabbit
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/  #集群:7001/eureka
+  instance:
+    lease-renewal-interval-in-seconds: 2 # 设置心跳时间间隔默认30s
+    lease-expiration-duration-in-seconds: 5 # 如果超过了5秒的间隔默认90s
+    instance-id: send-8001.com  #信息列表显示主机名称
+    prefer-ip-address: true # 访问路径变为ip地址

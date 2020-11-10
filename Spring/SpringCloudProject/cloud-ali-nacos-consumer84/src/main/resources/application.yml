@@ -1,0 +1,29 @@
+server:
+  port: 84
+
+spring:
+  application:
+    name: nacos-order-consumer
+  cloud:
+    nacos:
+      discovery:
+        server-addr: diankuaigong.ntg520.cn:18001
+    sentinel:
+      transport:
+        dashboard: localhost:8080
+        port: 8719
+      datasource:
+        ds1:
+          nacos:
+            server-addr: diankuaigong.ntg520.cn:18001 #nacos地址
+            dataId: cloud-alibaba-sentinel-service  #微服务名称
+            groupId: DEFAULT_GROUP  #默认分组
+            data-type: json #数据格式
+            rule-type: flow #流控规则
+
+service-url:
+  nacos-user-service: http://nacos-payment-provider
+
+feign:
+  sentinel:
+    enabled: true

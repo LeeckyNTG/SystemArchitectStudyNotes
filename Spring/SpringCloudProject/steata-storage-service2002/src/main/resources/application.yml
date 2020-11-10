@@ -1,0 +1,29 @@
+server:
+  port: 2002
+spring:
+  application:
+    name: seata-storage-service
+  cloud:
+    alibaba:
+      seata:
+        tx-service-group: clover_tx_groups
+    nacos:
+      discovery: #Nacos注册中心地址
+        server-addr: diankuaigong.ntg520.cn:18001
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource  #数据源类型
+    driver-class-name: org.gjt.mm.mysql.Driver    #mysql驱动包
+    url: jdbc:mysql://diankuaigong.ntg520.cn:3306/seata_storage?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: Kuaigong2324.
+feign:
+  hystrix:
+    enabled: false
+
+logging:
+  level:
+    io:
+      seata: info
+mybatis:
+  mapperLocations: classpath:mapper/*.xml
+  type-aliases-package: com.clover.springcloud.entities

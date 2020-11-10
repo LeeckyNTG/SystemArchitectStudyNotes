@@ -4,7 +4,7 @@
 
 Okhttp是一个高性能的处理网络请求的框架，由Square公司开发。其初始流程为下图所示：
 
-![](https://blog.piasy.com/img/201607/okhttp_full_process.png "okhttp\_full\_process")
+![](https://blog.piasy.com/img/201607/okhttp_full_process.png)
 
 Okhttp的子系统层级结构如下图：
 
